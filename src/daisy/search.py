@@ -3,6 +3,11 @@
 from typing import Any
 from collections import defaultdict
 
+from zvec import VectorQuery, RrfReRanker, DefaultLocalSparseEmbedding
+
+# Global sparse embedding function using SPLADE
+_sparse_ef = DefaultLocalSparseEmbedding(encoding_type="query")
+
 
 def merge_results(raw_results: list[dict]) -> list[dict]:
     """Merge search results grouped by table.
@@ -95,8 +100,9 @@ def semantic_search(
     Returns:
         List of results with doc_id, score, fields
     """
+    vector_query = VectorQuery(field_name="dense_embedding", vector=query_vector)
     results = collection.query(
-        vectors=[{"field_name": "dense_embedding", "vector": query_vector}],
+        vectors=vector_query,
         topk=topk,
         output_fields=[
             "table",
@@ -141,13 +147,18 @@ def hybrid_search(
     Returns:
         List of results with doc_id, score, fields
     """
+    # Create vector queries for both dense and sparse
+    dense_query = VectorQuery(field_name="dense_embedding", vector=query_vector)
+    # Generate sparse vector using SPLADE
+    sparse_vec = _sparse_ef.embed(query_text)
+    sparse_query = VectorQuery(field_name="sparse_embedding", vector=sparse_vec)
+
+    reranker = RrfReRanker(topn=topk, rank_constant=rrf_k)
+
     results = collection.query(
-        vectors=[
-            {"field_name": "sparse_embedding", "vector": {}},  # BM25 handled by zvec
-            {"field_name": "dense_embedding", "vector": query_vector},
-        ],
+        vectors=[dense_query, sparse_query],
         topk=topk,
-        reranker={"k": rrf_k},
+        reranker=reranker,
         output_fields=[
             "table",
             "column",
