@@ -29,13 +29,32 @@ uv pip install -e .
 ### Global Options
 
 ```bash
-daisy --db <database_path> --model <model_name> <command>
+daisy --db <database_path> --model <model_name> --config <config.yaml> <command>
 ```
 
 | Option | Default | Description |
 |--------|---------|-------------|
 | `--db` | `./daisy_db` | Database storage path |
 | `--model` | `all-MiniLM-L6-v2` | Embedding model (local, openai, qwen) |
+| `--config` | None | YAML config file path |
+
+### Config File
+
+Create a YAML config file to set defaults:
+
+```yaml
+# daisy.yaml
+db: ./my_database
+model: local
+```
+
+Use it with the `--config` flag:
+
+```bash
+daisy --config daisy.yaml add schema.txt --table MyTable ...
+```
+
+CLI flags override config file values. Config file values override hardcoded defaults.
 
 ### Commands
 
@@ -204,6 +223,20 @@ MODEL_REGISTRY = {
 ```
 
 For API models, you'll also need to implement the embedding logic in `src/daisy/embeddings.py`.
+
+### Model Cache Location
+
+Local embedding models are downloaded and cached by Hugging Face to:
+
+```
+# Windows
+%USERPROFILE%\.cache\huggingface\hub
+
+# Linux/macOS
+~/.cache/huggingface/hub
+```
+
+You can customize this with the `HF_HOME` or `TRANSFORMERS_CACHE` environment variables. Models are cached permanently and only downloaded once.
 
 ## Example Workflow
 
