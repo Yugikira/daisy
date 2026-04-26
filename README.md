@@ -134,13 +134,76 @@ Results are grouped by table to reduce token usage for AI agents:
 ]
 ```
 
-## Supported Embedding Models
+## Model Configuration
 
-| Model | Type | Dimension | Notes |
-|-------|------|-----------|-------|
-| `local` / `all-MiniLM-L6-v2` | sentence-transformers | 384 | Default, runs locally |
-| `openai` | OpenAI API | 1536 | Requires `OPENAI_API_KEY` env var |
-| `qwen` | Dashscope API | 1024 | Requires `QWEN_API_KEY` env var |
+### Environment Variables for API Models
+
+To use API-based embedding models, set the corresponding environment variables:
+
+```bash
+# For OpenAI embeddings
+export OPENAI_API_KEY="sk-your-openai-api-key"
+
+# For Qwen/Dashscope embeddings (Alibaba Cloud)
+export QWEN_API_KEY="your-dashscope-api-key"
+```
+
+If the API key is not set, Daisy will automatically fall back to the local model (`all-MiniLM-L6-v2`) with a warning.
+
+### Model Selection
+
+Use the `--model` global option to select an embedding model:
+
+```bash
+# Use default local model (all-MiniLM-L6-v2)
+daisy --db ./mydb add schema.txt --table MyTable ...
+
+# Use OpenAI embeddings
+daisy --model openai --db ./mydb add schema.txt --table MyTable ...
+
+# Use Qwen embeddings
+daisy --model qwen --db ./mydb add schema.txt --table MyTable ...
+
+# Use alias for local model
+daisy --model local --db ./mydb add schema.txt --table MyTable ...
+```
+
+**Important:** The embedding model is set when adding documents. When querying, use the same model for consistent results:
+
+```bash
+# Add with OpenAI model
+daisy --model openai --db ./mydb add schema.txt --table MyTable ...
+
+# Query with the same model
+daisy --model openai --db ./mydb query queries.json
+```
+
+### Supported Models
+
+| Model Alias | Type | Dimension | Environment Variable | Notes |
+|-------------|------|-----------|---------------------|-------|
+| `all-MiniLM-L6-v2` | local (sentence-transformers) | 384 | None | Default, runs locally, fastest |
+| `local` | local (sentence-transformers) | 384 | None | Alias for all-MiniLM-L6-v2 |
+| `openai` | API (text-embedding-3-small) | 1536 | `OPENAI_API_KEY` | High quality, requires internet |
+| `qwen` | API (Dashscope) | 1024 | `QWEN_API_KEY` | Good Chinese/English support |
+
+### Customizing Model Registry
+
+The model registry is defined in `src/daisy/config.py`. To add a new model, edit the `MODEL_REGISTRY` dict:
+
+```python
+MODEL_REGISTRY = {
+    # Add your custom model
+    "custom-model": {
+        "type": "local",  # or "api"
+        "dimension": 768,
+        "class": "sentence_transformers",  # or "openai", "qwen"
+        "model": "your-model-name",  # HuggingFace model name for local
+    },
+}
+```
+
+For API models, you'll also need to implement the embedding logic in `src/daisy/embeddings.py`.
 
 ## Example Workflow
 
