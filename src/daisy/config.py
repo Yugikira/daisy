@@ -13,11 +13,13 @@ MODEL_REGISTRY = {
         "type": "local",
         "dimension": 384,
         "class": "sentence_transformers",
+        "model": "all-MiniLM-L6-v2",
     },
     "local": {
         "type": "local",
         "dimension": 384,
         "class": "sentence_transformers",
+        "model": "all-MiniLM-L6-v2",
     },
     "openai": {
         "type": "api",
