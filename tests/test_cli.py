@@ -97,3 +97,41 @@ class TestCLI:
         # Parse output as JSON
         output = json.loads(result.stdout)
         assert isinstance(output, list)
+
+
+class TestIntegration:
+    """End-to-end integration tests."""
+
+    def test_full_workflow(self, tmp_path: Path):
+        """Test complete add -> query workflow."""
+        db_path = tmp_path / "integration_db"
+        schema_file = Path("tests/fixtures/sample_schema.txt")
+        query_file = Path("tests/fixtures/sample_queries.json")
+
+        # Add
+        result = runner.invoke(
+            app,
+            [
+                "--db", str(db_path),
+                "add",
+                str(schema_file),
+                "--table", "CSR_Finidx",
+                "--storage", "./CSR_Finidx.xlsx",
+                "--type", "xlsx",
+            ],
+        )
+        assert result.exit_code == 0
+
+        # Query for capex should find Outcap
+        result = runner.invoke(
+            app,
+            ["--db", str(db_path), "query", str(query_file)],
+        )
+        assert result.exit_code == 0
+
+        output = json.loads(result.stdout)
+        # Should have found results
+        assert len(output) >= 1
+        # Check that CSR_Finidx table is in results
+        tables = [o["table"] for o in output]
+        assert "CSR_Finidx" in tables
