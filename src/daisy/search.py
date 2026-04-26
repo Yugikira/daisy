@@ -48,7 +48,7 @@ def merge_results(raw_results: list[dict]) -> list[dict]:
 
 
 def bm25_search(collection: Any, query_text: str, topk: int = 10) -> list[dict]:
-    """BM25 sparse search on raw_content field.
+    """Sparse keyword search using SPLADE embeddings.
 
     Args:
         collection: Zvec collection
@@ -58,10 +58,12 @@ def bm25_search(collection: Any, query_text: str, topk: int = 10) -> list[dict]:
     Returns:
         List of results with doc_id, score, fields
     """
-    # Use zvec's BM25EmbeddingFunction for sparse search
-    # Note: This may need adjustment based on actual zvec query API
-    results = collection.search(
-        query=query_text,
+    # Generate sparse vector using SPLADE and query
+    sparse_vec = _sparse_ef.embed(query_text)
+    sparse_query = VectorQuery(field_name="sparse_embedding", vector=sparse_vec)
+
+    results = collection.query(
+        vectors=sparse_query,
         topk=topk,
         output_fields=[
             "table",
