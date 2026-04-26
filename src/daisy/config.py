@@ -1,6 +1,5 @@
 """Configuration constants and model registry."""
 
-
 DEFAULT_MODEL = "all-MiniLM-L6-v2"
 DEFAULT_DENSE_DIMENSION = 384
 DEFAULT_TOPK = 10

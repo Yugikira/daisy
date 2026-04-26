@@ -112,12 +112,16 @@ class TestIntegration:
         result = runner.invoke(
             app,
             [
-                "--db", str(db_path),
+                "--db",
+                str(db_path),
                 "add",
                 str(schema_file),
-                "--table", "CSR_Finidx",
-                "--storage", "./CSR_Finidx.xlsx",
-                "--type", "xlsx",
+                "--table",
+                "CSR_Finidx",
+                "--storage",
+                "./CSR_Finidx.xlsx",
+                "--type",
+                "xlsx",
             ],
         )
         assert result.exit_code == 0
