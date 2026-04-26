@@ -1,0 +1,2 @@
+stkcd, Stock Code, Based on exchange
+accper, Period, YYYY-MM-DD format
