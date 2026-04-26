@@ -1,0 +1,3 @@
+Stkcd [Stock Code] - Based on the stock code published by the exchange.
+Accper [Reporting Period End Date] - Expressed in YYYY-MM-DD format.
+Outcap [Capital Expenditure] - Cash paid for the acquisition and construction of fixed assets.
