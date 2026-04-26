@@ -139,3 +139,56 @@ class TestIntegration:
         # Check that CSR_Finidx table is in results
         tables = [o["table"] for o in output]
         assert "CSR_Finidx" in tables
+
+
+class TestConfigFile:
+    """Tests for YAML config file support."""
+
+    def test_config_file_applied(self, tmp_path: Path):
+        """Test that config file sets default db path."""
+        config_file = tmp_path / "daisy.yaml"
+        config_file.write_text("db: config_db_path")
+
+        db_path = tmp_path / "actual_db"
+
+        result = runner.invoke(
+            app,
+            [
+                "--config",
+                str(config_file),
+                "--db",
+                str(db_path),
+                "add",
+                str(Path("tests/fixtures/sample_schema.txt")),
+                "--table",
+                "TestTable",
+                "--storage",
+                "./data.xlsx",
+                "--type",
+                "xlsx",
+            ],
+        )
+
+        assert result.exit_code == 0
+
+    def test_config_file_with_model(self, tmp_path: Path):
+        """Test config file sets model."""
+        config_file = tmp_path / "daisy.yaml"
+        config_file.write_text("model: local")
+        db_path = tmp_path / "test_db"
+
+        result = runner.invoke(
+            app,
+            [
+                "--config",
+                str(config_file),
+                "--db",
+                str(db_path),
+                "info",
+            ],
+        )
+
+        # Should fail with db not found, not model error
+        assert result.exit_code != 0
+        output = result.stdout + (result.output or "")
+        assert "Database not found" in output

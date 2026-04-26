@@ -10,6 +10,7 @@ dependencies = [
     "pydantic>=2.13.3",
     "pytest>=9.0.3",
     "pytest-cov>=7.1.0",
+    "pyyaml>=6.0.3",
     "sentence-transformers>=5.4.1",
     "typer>=0.25.0",
     "zvec>=0.3.1",
