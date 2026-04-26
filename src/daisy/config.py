@@ -1,6 +1,5 @@
 """Configuration constants and model registry."""
 
-from pathlib import Path
 
 DEFAULT_MODEL = "all-MiniLM-L6-v2"
 DEFAULT_DENSE_DIMENSION = 384
@@ -48,5 +47,7 @@ def get_model_config(model_name: str) -> dict:
         ValueError: If model name not in registry
     """
     if model_name not in MODEL_REGISTRY:
-        raise ValueError(f"Unknown model: {model_name}. Available: {list(MODEL_REGISTRY.keys())}")
+        raise ValueError(
+            f"Unknown model: {model_name}. Available: {list(MODEL_REGISTRY.keys())}"
+        )
     return MODEL_REGISTRY[model_name]

@@ -38,7 +38,9 @@ def parse_line(line: str) -> dict[str, str]:
     }
 
 
-def parse_schema_file(path: Path, table: str, storage: str, dtype: str) -> list[dict[str, Any]]:
+def parse_schema_file(
+    path: Path, table: str, storage: str, dtype: str
+) -> list[dict[str, Any]]:
     """Parse entire schema file into document dicts.
 
     Args:

@@ -1,6 +1,5 @@
 """Tests for parser module."""
 
-import pytest
 from pathlib import Path
 from daisy.parser import parse_line, parse_schema_file
 
@@ -15,7 +14,9 @@ class TestParseLine:
 
         assert result["column"] == "Stkcd"
         assert result["description"] == "Stock Code"
-        assert result["definition"] == "Based on the stock code published by the exchange."
+        assert (
+            result["definition"] == "Based on the stock code published by the exchange."
+        )
         assert result["raw_content"] == line
 
     def test_parse_line_bracket_with_spaces(self):

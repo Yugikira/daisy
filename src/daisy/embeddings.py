@@ -28,7 +28,9 @@ def get_embedding_model(model_name: str) -> Any:
 
     config = MODEL_REGISTRY.get(model_name)
     if not config:
-        raise ValueError(f"Unknown model: {model_name}. Available: {list(MODEL_REGISTRY.keys())}")
+        raise ValueError(
+            f"Unknown model: {model_name}. Available: {list(MODEL_REGISTRY.keys())}"
+        )
 
     if config["type"] == "local":
         model_id = config.get("model", model_name)
