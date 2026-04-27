@@ -58,13 +58,33 @@ def merge_results(raw_results: list[dict]) -> list[dict]:
     return merged
 
 
-def bm25_search(collection: Any, query_text: str, topk: int = 10) -> list[dict]:
+def _build_filter_expr(filters: list[str] | None) -> str | None:
+    """Build a Zvec filter expression from a list of filter strings.
+
+    Args:
+        filters: List of Zvec-compatible filter expressions (e.g., ["table = 'CSR'"])
+
+    Returns:
+        Combined filter string joined with 'and', or None if no filters.
+    """
+    if not filters:
+        return None
+    return " and ".join(filters)
+
+
+def bm25_search(
+    collection: Any,
+    query_text: str,
+    topk: int = 10,
+    filters: list[str] | None = None,
+) -> list[dict]:
     """Sparse keyword search using SPLADE embeddings.
 
     Args:
         collection: Zvec collection
         query_text: Text to search
         topk: Number of results
+        filters: Optional Zvec filter expressions (e.g., ["table = 'CSR_Finidx'"])
 
     Returns:
         List of results with doc_id, score, fields
@@ -76,6 +96,7 @@ def bm25_search(collection: Any, query_text: str, topk: int = 10) -> list[dict]:
     results = collection.query(
         vectors=sparse_query,
         topk=topk,
+        filter=_build_filter_expr(filters),
         output_fields=[
             "table",
             "column",
@@ -105,6 +126,7 @@ def semantic_search(
     query_vector: list[float],
     topk: int = 10,
     min_score: float = MIN_SCORE_THRESHOLD,
+    filters: list[str] | None = None,
 ) -> list[dict]:
     """Semantic dense vector search.
 
@@ -113,6 +135,7 @@ def semantic_search(
         query_vector: Dense embedding vector
         topk: Number of results
         min_score: Minimum score threshold (default 0.50)
+        filters: Optional Zvec filter expressions
 
     Returns:
         List of results with doc_id, score, fields
@@ -121,6 +144,7 @@ def semantic_search(
     results = collection.query(
         vectors=vector_query,
         topk=topk,
+        filter=_build_filter_expr(filters),
         output_fields=[
             "table",
             "column",
@@ -152,6 +176,7 @@ def hybrid_search(
     topk: int = 10,
     rrf_k: int = 60,
     min_score: float = MIN_HYBRID_THRESHOLD,
+    filters: list[str] | None = None,
 ) -> list[dict]:
     """Hybrid search combining BM25 and semantic with RRF fusion.
 
@@ -162,6 +187,7 @@ def hybrid_search(
         topk: Number of results
         rrf_k: RRF fusion parameter
         min_score: Minimum RRF score threshold (default 0.01)
+        filters: Optional Zvec filter expressions
 
     Returns:
         List of results with doc_id, score, fields
@@ -178,6 +204,7 @@ def hybrid_search(
         vectors=[dense_query, sparse_query],
         topk=topk,
         reranker=reranker,
+        filter=_build_filter_expr(filters),
         output_fields=[
             "table",
             "column",

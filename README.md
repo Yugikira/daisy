@@ -68,6 +68,12 @@ Add a schema txt file to the database:
 daisy --db ./mydb add schema.txt --table MyTable --storage ./data.xlsx --type xlsx
 ```
 
+Or use a single `--schema` JSON dict for all metadata:
+
+```bash
+daisy --db ./mydb add schema.txt --schema '{"table":"MyTable","storage":"./data.xlsx","type":"xlsx"}'
+```
+
 | Option | Required | Description |
 |--------|----------|-------------|
 | `--table` | Yes | Table name for metadata |
@@ -86,6 +92,14 @@ daisy --db ./mydb query queries.json
 |--------|---------|-------------|
 | `--topk` | `3` | Max results per query |
 | `--model` | `local` | Embedding model |
+| `--filter` / `-f` | None | Zvec filter expression (repeatable, joined with AND) |
+
+**Filter examples:**
+
+```bash
+daisy query queries.json -f "table = 'CSR_Finidx'"
+daisy query queries.json -f "table = 'CSR_Finidx'" -f "type = 'xlsx'"
+```
 
 #### Search (BM25/Sparse)
 
@@ -98,6 +112,7 @@ daisy --db ./mydb search queries.json
 | Option | Default | Description |
 |--------|---------|-------------|
 | `--topk` | `3` | Max results per query |
+| `--filter` / `-f` | None | Zvec filter expression (repeatable, joined with AND) |
 
 #### Semantic Search
 
@@ -111,6 +126,7 @@ daisy --db ./mydb vsearch queries.json
 |--------|---------|-------------|
 | `--topk` | `3` | Max results per query |
 | `--model` | `local` | Embedding model |
+| `--filter` / `-f` | None | Zvec filter expression (repeatable, joined with AND) |
 
 #### Database Info
 
