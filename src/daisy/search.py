@@ -8,8 +8,11 @@ from zvec import VectorQuery, RrfReRanker, DefaultLocalSparseEmbedding
 # Global sparse embedding function using SPLADE
 _sparse_ef = DefaultLocalSparseEmbedding(encoding_type="query")
 
-# Minimum score threshold for semantic/hybrid search results
+# Minimum score threshold for semantic dense vector search (cosine similarity range)
 MIN_SCORE_THRESHOLD = 0.50
+
+# Minimum score threshold for hybrid RRF-fused results (1/(k+1) + 1/(k+1) range)
+MIN_HYBRID_THRESHOLD = 0.01
 
 
 def _filter_by_score(results: list[dict], min_score: float) -> list[dict]:
@@ -148,7 +151,7 @@ def hybrid_search(
     query_vector: list[float],
     topk: int = 10,
     rrf_k: int = 60,
-    min_score: float = MIN_SCORE_THRESHOLD,
+    min_score: float = MIN_HYBRID_THRESHOLD,
 ) -> list[dict]:
     """Hybrid search combining BM25 and semantic with RRF fusion.
 
@@ -158,7 +161,7 @@ def hybrid_search(
         query_vector: Dense vector for semantic
         topk: Number of results
         rrf_k: RRF fusion parameter
-        min_score: Minimum score threshold (default 0.50)
+        min_score: Minimum RRF score threshold (default 0.01)
 
     Returns:
         List of results with doc_id, score, fields

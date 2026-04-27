@@ -37,6 +37,7 @@ daisy --db <database_path> --model <model_name> --config <config.yaml> <command>
 | `--db` | `./daisy_db` | Database storage path |
 | `--model` | `all-MiniLM-L6-v2` | Embedding model (local, openai, qwen) |
 | `--config` | None | YAML config file path |
+| `--topk` | `3` | Number of results per query (query/search/vsearch) |
 
 ### Config File
 
@@ -46,6 +47,7 @@ Create a YAML config file to set defaults:
 # daisy.yaml
 db: ./my_database
 model: local
+topk: 5
 ```
 
 Use it with the `--config` flag:
@@ -80,6 +82,11 @@ Query with hybrid search (sparse + dense with RRF fusion):
 daisy --db ./mydb query queries.json
 ```
 
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--topk` | `3` | Max results per query |
+| `--model` | `local` | Embedding model |
+
 #### Search (BM25/Sparse)
 
 Keyword-based search using SPLADE sparse embeddings:
@@ -88,6 +95,10 @@ Keyword-based search using SPLADE sparse embeddings:
 daisy --db ./mydb search queries.json
 ```
 
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--topk` | `3` | Max results per query |
+
 #### Semantic Search
 
 Dense vector semantic search:
@@ -95,6 +106,11 @@ Dense vector semantic search:
 ```bash
 daisy --db ./mydb vsearch queries.json
 ```
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--topk` | `3` | Max results per query |
+| `--model` | `local` | Embedding model |
 
 #### Database Info
 

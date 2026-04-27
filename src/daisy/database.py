@@ -124,18 +124,20 @@ def insert_docs(collection: Any, docs: list[dict], dense_model: Any) -> int:
         Number of documents inserted
     """
     from daisy.embeddings import get_dense_embedding
+    from daisy.search import _sparse_ef
 
     zvec_docs = []
     for doc in docs:
         raw_content = doc["fields"]["raw_content"]
         dense_vec = get_dense_embedding(raw_content, dense_model)
+        sparse_vec = _sparse_ef.embed(raw_content)
 
         zvec_doc = Doc(
             id=doc["id"],
             fields=doc["fields"],
             vectors={
                 "dense_embedding": dense_vec,
-                "sparse_embedding": {},  # zvec handles BM25 internally
+                "sparse_embedding": sparse_vec,
             },
         )
         zvec_docs.append(zvec_doc)
