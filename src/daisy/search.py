@@ -8,6 +8,14 @@ from zvec import VectorQuery, RrfReRanker, DefaultLocalSparseEmbedding
 # Global sparse embedding function using SPLADE
 _sparse_ef = DefaultLocalSparseEmbedding(encoding_type="query")
 
+# Minimum score threshold for semantic/hybrid search results
+MIN_SCORE_THRESHOLD = 0.50
+
+
+def _filter_by_score(results: list[dict], min_score: float) -> list[dict]:
+    """Filter results below minimum score threshold."""
+    return [r for r in results if r["score"] >= min_score]
+
 
 def merge_results(raw_results: list[dict]) -> list[dict]:
     """Merge search results grouped by table.
@@ -90,7 +98,10 @@ def bm25_search(collection: Any, query_text: str, topk: int = 10) -> list[dict]:
 
 
 def semantic_search(
-    collection: Any, query_vector: list[float], topk: int = 10
+    collection: Any,
+    query_vector: list[float],
+    topk: int = 10,
+    min_score: float = MIN_SCORE_THRESHOLD,
 ) -> list[dict]:
     """Semantic dense vector search.
 
@@ -98,6 +109,7 @@ def semantic_search(
         collection: Zvec collection
         query_vector: Dense embedding vector
         topk: Number of results
+        min_score: Minimum score threshold (default 0.50)
 
     Returns:
         List of results with doc_id, score, fields
@@ -127,7 +139,7 @@ def semantic_search(
             }
         )
 
-    return formatted
+    return _filter_by_score(formatted, min_score)
 
 
 def hybrid_search(
@@ -136,6 +148,7 @@ def hybrid_search(
     query_vector: list[float],
     topk: int = 10,
     rrf_k: int = 60,
+    min_score: float = MIN_SCORE_THRESHOLD,
 ) -> list[dict]:
     """Hybrid search combining BM25 and semantic with RRF fusion.
 
@@ -145,6 +158,7 @@ def hybrid_search(
         query_vector: Dense vector for semantic
         topk: Number of results
         rrf_k: RRF fusion parameter
+        min_score: Minimum score threshold (default 0.50)
 
     Returns:
         List of results with doc_id, score, fields
@@ -182,4 +196,4 @@ def hybrid_search(
             }
         )
 
-    return formatted
+    return _filter_by_score(formatted, min_score)
